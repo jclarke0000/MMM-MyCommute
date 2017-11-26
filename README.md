@@ -13,6 +13,8 @@ https://github.com/domsen123/mrx-work-traffic
 `git clone https://github.com/jclarke0000/MMM-MyCommute.git`.
 2. Enter the `MMM-MyCommute` directory and execute `npm install`.
 3. Go to https://developers.google.com/maps/documentation/javascript/get-api-key and get an API key.
+4. Restart MagicMirror<br>
+e.g. `pm2 restart mm`
 
 # NOTE To those updating from previous verions
 
