@@ -264,6 +264,7 @@ Module.register('MMM-MyCommute', {
 
     }
 
+    params += '&language=' + config.language;
     params += '&departure_time=now'; //needed for time based on traffic conditions
 
     return params;
