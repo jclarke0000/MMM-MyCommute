@@ -237,9 +237,6 @@ Module.register('MMM-MyCommute', {
         params += '&transit_mode=' + sanitizedTransitModes;
       }
     } 
-    if (dest.alternatives == true) {
-      params += '&alternatives=true';
-    }
 
     if (dest.waypoints) {
       var waypoints = dest.waypoints.split("|");
@@ -262,6 +259,10 @@ Module.register('MMM-MyCommute', {
         params += '&avoid=' + sanitizedAvoidOptions;
       }
 
+    }
+    
+   if (dest.alternatives == true) {
+      params += '&alternatives=true';
     }
 
     params += '&departure_time=now'; //needed for time based on traffic conditions
