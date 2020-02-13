@@ -22,6 +22,8 @@ Module.register('MMM-MyCommute', {
     endTime: '23:59',
     hideDays: [],
     showSummary: true,
+    showDistanceInSummary: true,
+    metricDistance: true,
     colorCodeTravelTime: true,
     moderateTimeThreshold: 1.1,
     poorTimeThreshold: 1.3,
@@ -53,7 +55,9 @@ Module.register('MMM-MyCommute', {
         label: 'Pearson Airport',
         time: null
       }
-    ]
+    ],
+    showCalendarEvents: false,
+    calendarEventConfig: {}
   },
 
   // Define required scripts.
@@ -262,7 +266,7 @@ Module.register('MMM-MyCommute', {
         params += '&avoid=' + sanitizedAvoidOptions;
       }
 
-    }
+    } 
 
     params += '&departure_time=now'; //needed for time based on traffic conditions
 
@@ -308,6 +312,20 @@ Module.register('MMM-MyCommute', {
 
   },
 
+  formatDistance: function(distance) {
+
+    var formattedDistance = this.config.metricDistance ? 
+      Math.round(distance / 1000) + " km" :
+      Math.round(distance / 1609.34) + " mi";
+
+    var distanceEl = document.createElement("span");
+    distanceEl.classList.add("travel-distance");
+    distanceEl.innerHTML = formattedDistance;
+
+    return distanceEl;
+
+  },
+
   getTransitIcon: function(dest, route) {
 
     var transitIcon;
@@ -336,7 +354,7 @@ Module.register('MMM-MyCommute', {
         transitLeg.appendChild(this.svgIconFactory(this.symbols[transitInfo[i].vehicle.toLowerCase()]));
 
       var routeNumber = document.createElement("span");
-        routeNumber.innerHTML = transitInfo[i].routeLabel;
+      routeNumber.innerHTML = transitInfo[i].routeLabel;
 
       if (transitInfo[i].arrivalTime) {
         routeNumber.innerHTML = routeNumber.innerHTML + " (" + moment(transitInfo[i].arrivalTime).format(this.config.nextTransitVehicleDepartureFormat) + ")";
@@ -399,6 +417,10 @@ Module.register('MMM-MyCommute', {
 
         row.appendChild( this.formatTime(r.time, r.timeInTraffic) );
 
+        if (this.config.showDistanceInSummary && r.distance) {
+          row.appendChild( this.formatDistance(r.distance) )
+        }
+
         //summary?
         if (this.config.showSummary) {
           var summary = document.createElement("div");
@@ -428,8 +450,12 @@ Module.register('MMM-MyCommute', {
 
           routeSummaryOuter.appendChild( this.formatTime(r.time, r.timeInTraffic) );
 
+          if (this.config.showDistanceInSummary && r.distance) {
+            routeSummaryOuter.appendChild( this.formatDistance(r.distance) )
+          }
+
           var summary = document.createElement("div");
-            summary.classList.add("route-summary");
+          summary.classList.add("route-summary");
 
           if (r.transitInfo) {
             symbolIcon = this.getTransitIcon(p.config,r);
@@ -490,6 +516,41 @@ Module.register('MMM-MyCommute', {
     if ( notification == 'DOM_OBJECTS_CREATED' && !this.inWindow) {
       this.hide(0, {lockString: this.identifier});
       this.isHidden = true;
+    }
+
+    if (notification === 'CALENDAR_EVENTS' && this.config.showCalendarEvents) { 
+      // clear previously added event destinations (in reverse order, to prevent index shifts messing up splice())
+      var destinationsToRemove = [];
+      for(var i = this.config.destinations.length-1; i >= 0; i--) {
+        if (this.config.destinations[i].isEventDestination) {
+          destinationsToRemove.push(i);
+        }
+      }
+      destinationsToRemove.forEach(function(i) {
+        this.config.destinations.splice(i, 1);
+      }, this);
+
+      // add data for each event with title and location, up to as config.showCalendarEvents number
+      var eventsAdded = 0;
+      for (var e in payload) {
+        var event = payload[e];
+        if (event && event.title && event.location) {
+          var d = JSON.parse(JSON.stringify(this.config.calendarEventConfig)); // hacky but simple "clone object"
+          d.label = event.title;
+          d.destination = event.location;
+          d.isEventDestination = true;
+          this.config.destinations.push(d);
+
+          if (++eventsAdded >= this.config.showCalendarEvents) {
+            break;
+          }
+        }
+      }
+
+      // toggle extra refresh if calendar just pushed more events than we knew about before (e.g. on initial startup)
+      if (eventsAdded > destinationsToRemove.length) {
+        this.getData();
+      }      
     }
   }
 

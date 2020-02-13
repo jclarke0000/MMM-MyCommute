@@ -62,6 +62,9 @@ module.exports = NodeHelper.create({
               if (r.legs[0].duration_in_traffic) {
                 routeObj.timeInTraffic = r.legs[0].duration_in_traffic.value;
               }
+              if (r.legs[0].distance) {
+                routeObj.distance = r.legs[0].distance.value;
+              }
               if (dest.config.mode && dest.config.mode == 'transit') {
                 var transitInfo = new Array();
                 var gotFirstTransitLeg = false;

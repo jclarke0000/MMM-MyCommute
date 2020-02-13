@@ -41,6 +41,7 @@
 }
 
 .MMM-MyCommute .travel-time,
+.MMM-MyCommute .travel-distance,
 .MMM-MyCommute .loading-icon,
 .MMM-MyCommute .route-error {
   text-align: right;
@@ -53,6 +54,11 @@
   right: 0px;
   line-height: 18px;
   margin-top: 4px;
+}
+
+.MMM-MyCommute .travel-distance {
+  margin-right: 75px;
+  font-weight: 300;
 }
 
 .MMM-MyCommute .route-error {
@@ -69,7 +75,6 @@
 .MMM-MyCommute .travel-time.status-poor {  
   color: #ff5a44;
 }
-
 
 .MMM-MyCommute .route-summary {
   font-size: 16px;
@@ -90,10 +95,11 @@
 }
 
 .MMM-MyCommute .route-summary-outer .route-summary {
-  margin-right: 60px;
+  margin-right: 150px;
 }
 
-.MMM-MyCommute .route-summary-outer .travel-time {
+.MMM-MyCommute .route-summary-outer .travel-time,
+.MMM-MyCommute .route-summary-outer .travel-distance {
   top: 0px;
   margin-top: 0px;
 }
