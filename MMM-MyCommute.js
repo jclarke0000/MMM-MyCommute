@@ -213,7 +213,7 @@ Module.register('MMM-MyCommute', {
   getParams: function(dest) {
 
     var params = '?';
-    params += 'origin=' + encodeURIComponent(this.config.origin);
+    params += 'origin=' + encodeURIComponent(dest.origin || this.config.origin);
     params += '&destination=' + encodeURIComponent(dest.destination);
     params += '&key=' + this.config.apikey;
 

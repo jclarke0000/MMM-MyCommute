@@ -123,6 +123,10 @@ Each object in the `destinations` array can have the following parameters:
   </thead>
   <tbody>
     <tr>
+      <td><code>origin</code></td>
+      <td><strong>OPTIONAL</strong> Use a different origin, e.g. to show your commute back home<br><br><strong>Type:</strong> <code>string</code></td>
+    </tr>
+    <tr>
       <td><code>destination</code></td>
       <td><strong>REQUIRED</strong> The address of the destination<br><br><strong>Type:</strong> <code>string</code></td>
     </tr>
@@ -160,15 +164,15 @@ Each object in the `destinations` array can have the following parameters:
     </tr>
     <tr>
       <td><code>startTime</code></td>
-      <td>The start time of the window during which this destination wil be visible.<br><br><strong>Type:</strong> <code>string</code><br>Must be in 24-hour time format.  Defaults to <code>00:00</code> (i.e.: midnight)</td>
+      <td>The start time of the window during which this route will be visible.<br><br><strong>Type:</strong> <code>string</code><br>Must be in 24-hour time format.  Defaults to <code>00:00</code> (i.e.: midnight)</td>
     </tr>
     <tr>
       <td><code>endTime</code></td>
-      <td>The end time of the window during which this destination wil be visible.<br><br><strong>Type:</strong> <code>string</code><br>Must be in 24-hour time format.  Defaults to <code>23:59</code> (i.e.: one minute before midnight).</td>
+      <td>The end time of the window during which this route will be visible.<br><br><strong>Type:</strong> <code>string</code><br>Must be in 24-hour time format.  Defaults to <code>23:59</code> (i.e.: one minute before midnight).</td>
     </tr>
     <tr>
       <td><code>hideDays</code></td>
-      <td>A list of numbers representing days of the week to hide the destination.<br><br><strong>Type:</strong> <code>array</code><br>Valid numbers are 0 through 6, 0 = Sunday, 6 = Saturday.<br>e.g.: <code>[0,6]</code> hides the destination on weekends.</td>
+      <td>A list of numbers representing days of the week to hide the route.<br><br><strong>Type:</strong> <code>array</code><br>Valid numbers are 0 through 6, 0 = Sunday, 6 = Saturday.<br>e.g.: <code>[0,6]</code> hides the destination on weekends.</td>
     </tr>
 
   </tbody>
@@ -196,6 +200,12 @@ Here is an example of an entry in `config.js`
       {
         destination: '317 Dundas St W, Toronto, ON M5T 1G4',
         label: 'Art Gallery of Ontario',
+        mode: 'transit'
+      },
+      {
+        origin: '317 Dundas St W, Toronto, ON M5T 1G4',
+        destination: '65 Front St W, Toronto, ON M5J 1E6',
+        label: 'Back home from the Art Gallery',
         mode: 'transit'
       },
       {
