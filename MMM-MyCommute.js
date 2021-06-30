@@ -197,6 +197,7 @@ Module.register('MMM-MyCommute', {
         this.sendSocketNotification("GOOGLE_TRAFFIC_GET", {destinations: destinations, instanceId: this.identifier});
       } else {
         this.hide(1000, {lockString: this.identifier});
+		this.sendNotification('SET_LCD_BACKLIGHT', {command: -1}  ); // remove module backlighting		
         this.inWindow = false;
         this.isHidden = true;
       }
@@ -204,6 +205,7 @@ Module.register('MMM-MyCommute', {
     } else {
 
       this.hide(1000, {lockString: this.identifier});
+	  this.sendNotification('SET_LCD_BACKLIGHT', {command: -1}  ); // remove module backlighting		
       this.inWindow = false;
       this.isHidden = true;
     }
@@ -284,27 +286,31 @@ Module.register('MMM-MyCommute', {
   formatTime: function(time, timeInTraffic) {
 
     var timeEl = document.createElement("span");
+	var trafficStatus = 0 ; //0 = good, 1 = moderate, 2 = poor
     timeEl.classList.add("travel-time");
     if (timeInTraffic != null) {
       timeEl.innerHTML = moment.duration(Number(timeInTraffic), "seconds").format(this.config.travelTimeFormat, {trim: this.config.travelTimeFormatTrim});
 
       var variance = timeInTraffic / time;
-      if (this.config.colorCodeTravelTime) {            
-        if (variance > this.config.poorTimeThreshold) {
-          timeEl.classList.add("status-poor");
-        } else if (variance > this.config.moderateTimeThreshold) {
-          timeEl.classList.add("status-moderate");
-        } else {
+      if (variance > this.config.poorTimeThreshold) {
+          if (this.config.colorCodeTravelTime) { timeEl.classList.add("status-poor");};
+		  trafficStatus = 2;
+      } else if (variance > this.config.moderateTimeThreshold) {
+          if (this.config.colorCodeTravelTime) {timeEl.classList.add("status-moderate");};
+		  trafficStatus = 1 ;
+      } else {
           timeEl.classList.add("status-good");
-        }
+		  trafficStatus = 0 ;
       }
+   
 
     } else {
       timeEl.innerHTML = moment.duration(Number(time), "seconds").format(this.config.travelTimeFormat, {trim: this.config.travelTimeFormatTrim});
       timeEl.classList.add("status-good");
+	  trafficStatus = 0 ;
     }
 
-    return timeEl;
+    return [timeEl,trafficStatus];
 
   },
 
@@ -360,6 +366,8 @@ Module.register('MMM-MyCommute', {
         wrapper.appendChild(loading);
       return wrapper
     }
+     
+	var worstTrafficStatus = 0 ;  // 0 = good, 1 = moderate, 2 = poor
 
     for (var i = 0; i < this.predictions.length; i++) {
 
@@ -396,8 +404,13 @@ Module.register('MMM-MyCommute', {
       } else if (p.routes.length == 1 || !this.config.showSummary) {
 
         var r = p.routes[0];
-
-        row.appendChild( this.formatTime(r.time, r.timeInTraffic) );
+		var trafficStatus ;
+		var timeFormat;
+		
+		[timeFormat,trafficStatus] = this.formatTime(r.time, r.timeInTraffic);
+		
+        row.appendChild( timeFormat );
+		worstTrafficStatus = (worstTrafficStatus>trafficStatus)?worstTrafficStatus:trafficStatus ;
 
         //summary?
         if (this.config.showSummary) {
@@ -459,7 +472,14 @@ Module.register('MMM-MyCommute', {
       wrapper.appendChild(row);
     }
 
-
+	if (worstTrafficStatus = 0 ) {
+		this.sendNotification('SET_LCD_BACKLIGHT', {command: "GOOD"}  ); // good traffic situation 
+	} else if (worstTrafficStatus = 1) {
+		this.sendNotification('SET_LCD_BACKLIGHT', {command: "MODERATE"}  ); // moderate traffic situation
+	} else {
+		this.sendNotification('SET_LCD_BACKLIGHT', {command: "POOR"}  ); // poor traffic situation
+	}		
+		
     return wrapper;
   },
   
