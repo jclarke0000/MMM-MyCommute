@@ -472,9 +472,9 @@ Module.register('MMM-MyCommute', {
       wrapper.appendChild(row);
     }
 
-	if (worstTrafficStatus = 0 ) {
+	if (worstTrafficStatus == 0 ) {
 		this.sendNotification('SET_LCD_BACKLIGHT', {command: "GOOD"}  ); // good traffic situation 
-	} else if (worstTrafficStatus = 1) {
+	} else if (worstTrafficStatus == 1) {
 		this.sendNotification('SET_LCD_BACKLIGHT', {command: "MODERATE"}  ); // moderate traffic situation
 	} else {
 		this.sendNotification('SET_LCD_BACKLIGHT', {command: "POOR"}  ); // poor traffic situation
