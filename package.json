@@ -21,7 +21,6 @@
   "homepage": "https://github.com/jclarke0000/MMM-MyCommute#readme",
   "dependencies": {
     "moment": "^2.18.1",
-    "moment-duration-format": "^1.3.0",
-    "request": "^2.81.0"
+    "moment-duration-format": "^1.3.0"
   }
 }

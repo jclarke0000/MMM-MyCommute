@@ -6,7 +6,7 @@
  */
 
 var NodeHelper = require("node_helper");
-var request = require('request');
+var fetch = require('node-fetch');
 var moment = require('moment');
  
 module.exports = NodeHelper.create({
@@ -21,36 +21,34 @@ module.exports = NodeHelper.create({
     if (notification === 'GOOGLE_TRAFFIC_GET') {
 
       //first data opull after new config
-      this.getPredictions(payload);
-
-    }
+    (async () => {await this.getPredictions(payload);})();
+	}
   },
-
-
 	
-	getPredictions: function(payload) {
-		var self = this;
+	
+	getPredictions: async function(payload) {
 
     var returned = 0;
     var predictions = new Array();
+//	console.log("MM-MyCommute-DEBUG PAYLOAD GET PREDECTIONS: "+ JSON.stringify(payload,undefined,2));
 
-		payload.destinations.forEach(function(dest, index) {
-			request({url: dest.url, method: 'GET'}, function(error, response, body) {
+	for (let index = 0 ; index < payload.destinations.length ; index++) {
+      var dest = payload.destinations[index] ;
+	  try {
+		var body = await fetch(dest.url);
+		var data = await body.json() ;
+		
+//		console.log("MM-MyCommute-DEBUG ("+ index + "): "+ JSON.stringify(data,undefined,2));
 				
-        var prediction = new Object({
-          config: dest.config
-        });
+		var prediction = new Object({
+			config: dest.config
+		});
 
-        if(!error && response.statusCode == 200){
-
-          var data = JSON.parse(body);
-
-
-          if (data.error_message) {
+        if (data.error_message) {
             console.log("MMM-MyCommute: " + data.error_message);
             prediction.error = true;
-          } else {
-  
+        } else {
+ 
             var routeList = new Array();
             for (var i = 0; i < data.routes.length; i++) {
               var r = data.routes[i];
@@ -86,21 +84,17 @@ module.exports = NodeHelper.create({
             
           }
 
-        } else {
-          console.log( "Error getting traffic prediction: " + response.statusCode );
+        } catch(error) {
+          console.log( "Error getting traffic prediction: " + error );
           prediction.error = true;
 
-        }
-
-        predictions[index] = prediction;
-        returned++;
-
-        if (returned == payload.destinations.length) {          
-          self.sendSocketNotification('GOOGLE_TRAFFIC_RESPONSE' + payload.instanceId, predictions);
         };
+		predictions[index] = prediction;
+	};
+        
+    this.sendSocketNotification('GOOGLE_TRAFFIC_RESPONSE' + payload.instanceId, predictions);
 
-      });
-    });
-	}
-	
+  }
+  
+  
 });
